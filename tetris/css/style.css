@@ -1,0 +1,14 @@
+#main_div {
+  height: 100vh; }
+
+#tetris_field {
+  box-sizing: border-box; }
+  #tetris_field td {
+    height: 25px;
+    width: 25px;
+    border: 1px solid black; }
+
+.tetris-segment {
+  height: 100%;
+  width: 100%;
+  background-color: darkslategrey; }
