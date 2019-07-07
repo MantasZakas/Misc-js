@@ -2,12 +2,15 @@
 
 $(function () {
 
-    let activePositions = [[4, 140], [5, 140], [4, 150], [5, 150]];
+    let activePositions = [[4, 140], [5, 140], [4, 150], [5, 150]]; //cells occupied by active segments
 
     prepareTetrisField();
     setKeyListener();
-    moveTetrisSegments(true); //TODO remove this line later
-    test();
+    toggleTetrisSegments(true); //TODO remove this line later
+    test(); //TODO remove this line later
+    changeTurn();
+
+
 
     /**
      * Prepare the table that serves as the play field
@@ -38,9 +41,7 @@ $(function () {
                 if (e.which === 37) newPositions = generateNewPositions(0, -1);//left
                 if (e.which === 39) newPositions = generateNewPositions(0, 1);//right
                 if (activePositions !== newPositions) {
-                    moveTetrisSegments(false); //delete old segments
-                    activePositions = newPositions.slice();
-                    moveTetrisSegments(true); //draw new segments
+                    moveTetrisSegments(newPositions);
                 }
             }
         })
@@ -70,7 +71,7 @@ $(function () {
      * Draw or delete tetris segments
      * @param {boolean} draw // true for draw; false for delete
      */
-    function moveTetrisSegments(draw) {
+    function toggleTetrisSegments(draw) {
         activePositions.forEach(function (position) {
             let tetrisCell = document.getElementsByClassName(position[1].toString())[position[0]];
             if (draw) {
@@ -79,6 +80,16 @@ $(function () {
                 tetrisCell.innerHTML = ''
             }
         }); //TODO add stability by checking segments and cells before drawing or deleting
+    }
+
+    /**
+     *
+     * @param {array} newPositions
+     */
+    function moveTetrisSegments(newPositions) {
+        toggleTetrisSegments(false); //delete old segments
+        activePositions = newPositions.slice();
+        toggleTetrisSegments(true); //draw new segments
     }
 
     /**
@@ -102,7 +113,18 @@ $(function () {
         return valid
     }
 
-    function test() {
+    /**
+     * Self calling loop that takes care of what happens each turn
+     */
+    function changeTurn() { //TODO timeout should probably become a global variable
+        setTimeout(function () {
+            console.log("turn");
+            moveTetrisSegments(generateNewPositions(1, -10)); //simulate gravity
+            changeTurn()
+        }, 1000)
+    }
+
+    function test() { //TODO remove this later
         document.getElementsByClassName("100")[5].innerHTML = '<div class="tetris-segment"></div>'
     }
 
