@@ -2,7 +2,9 @@
 
 $(function () {
 
-    let activePositions = [[4, 140], [5, 140], [4, 150], [5, 150]]; //cells occupied by active segments
+    const TETRIS_FIELD_HEIGHT = 200; //10 for each row, starting at row 10
+    const TETRIS_FIELD_WIDTH = 9; //1 for each column, starting at column 0
+    let activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //cells occupied by active segments
 
     prepareTetrisField();
     setKeyListener();
@@ -17,9 +19,10 @@ $(function () {
      */
     function prepareTetrisField() {
         let tetrisField = $("#tetris_field");
-        for (let rowNo = 200; rowNo > 0; rowNo -= 10) {
+        for (let rowNo = TETRIS_FIELD_HEIGHT + 40; rowNo > 0; rowNo -= 10) { //+40 to create a spawn area for segments
             let fieldRow = '<tr>';
-            for (let colNo = 0; colNo < 10; colNo++) {
+            if (rowNo > TETRIS_FIELD_HEIGHT) fieldRow = '<tr class="d-none">'; //hide the spawn area
+            for (let colNo = 0; colNo < TETRIS_FIELD_WIDTH + 1; colNo++) {
                 fieldRow += ('<td class="' + colNo + ' ' + rowNo + '"></td>');
             }
             fieldRow += '</tr>';
@@ -30,14 +33,14 @@ $(function () {
     /**
      * Add keyboard listener which allows controlled movement of tetris segments
      */
-    function setKeyListener() { //TODO stop tetrominos from moving outside of field
+    function setKeyListener() {
         $(document).keydown(function (e) {
             console.log(e.which);
             let recognisedKeys = [40, 38, 37, 39]; //TODO might need to change this to a key mapping object
             if (recognisedKeys.includes(e.which)) { //ignore not understood key presses
                 let newPositions = [];
                 if (e.which === 40) newPositions = generateNewPositions(1, -10);//down
-                if (e.which === 38) newPositions = generateNewPositions(1, 10);//up
+                if (e.which === 38) newPositions = generateNewPositions(1, 10);//up TODO remove later
                 if (e.which === 37) newPositions = generateNewPositions(0, -1);//left
                 if (e.which === 39) newPositions = generateNewPositions(0, 1);//right
                 if (activePositions !== newPositions) {
@@ -60,7 +63,7 @@ $(function () {
             newPosition[colOrRow] += magnitude;
             if (!validateNewPosition(newPosition)) {
                 newPositions = activePositions.slice();
-                break //TODO might need to return some king of signal here
+                break //TODO might need to return some kind of signal here
             }
             newPositions.push(newPosition);
         }
@@ -97,12 +100,12 @@ $(function () {
      * @param {array} newPosition
      * @returns {boolean}
      */
-    function validateNewPosition(newPosition) { //TODO automate tetris field size
+    function validateNewPosition(newPosition) {
         let valid = true;
-        if (newPosition[0] < 0 || newPosition[0] > 9) valid = false;
-        if (newPosition[1] < 10 || newPosition[1] > 200) valid = false;
+        if (newPosition[0] < 0 || newPosition[0] > TETRIS_FIELD_WIDTH) valid = false;
+        if (newPosition[1] < 10 || newPosition[1] > TETRIS_FIELD_HEIGHT + 40) valid = false;
         if (valid && document.getElementsByClassName(newPosition[1].toString())[newPosition[0]].innerHTML ===
-            '<div class="tetris-segment"></div>') { //if cell is taken by a segment, block
+            '<div class="tetris-segment"></div>') { //if cell is taken by a segment, block TODO might remove the precise check
             valid = false;
             activePositions.forEach(function(position) { //if cell is taken by the active tetromino, allow
                 if (newPosition.includes(position[0]) && newPosition.includes(position[1])) {
@@ -119,7 +122,7 @@ $(function () {
     function changeTurn() { //TODO timeout should probably become a global variable
         setTimeout(function () {
             console.log("turn");
-            moveTetrisSegments(generateNewPositions(1, -10)); //simulate gravity
+            moveTetrisSegments(generateNewPositions(1, -10)); //simulate "gravity"
             changeTurn()
         }, 1000)
     }

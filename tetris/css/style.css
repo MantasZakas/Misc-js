@@ -13,3 +13,7 @@
   width: 100%;
   background-color: darkslategrey;
   transition: 1000ms; }
+
+.d-none {
+  display: table-row !important;
+  background-color: grey; }

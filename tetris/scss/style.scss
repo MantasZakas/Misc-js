@@ -18,3 +18,8 @@
   background-color: darkslategrey;
   transition: 1000ms;
 }
+
+.d-none { //TODO for testing only, delete later
+  display: table-row !important;
+  background-color: grey;
+}
