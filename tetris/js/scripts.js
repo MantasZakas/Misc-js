@@ -7,6 +7,7 @@ $(function () {
     prepareTetrisField();
     setKeyListener();
     moveTetrisSegments(true); //TODO remove this line later
+    test();
 
     /**
      * Prepare the table that serves as the play field
@@ -65,17 +66,6 @@ $(function () {
         return newPositions
     }
 
-    // function generateNewPositions (colOrRow, magnitude) {
-    //     let newPositions = [];
-    //     activePositions.forEach(function(position) {
-    //         let newPosition = position.slice();
-    //         newPosition[colOrRow] += magnitude;
-    //         if (!validateNewPosition(newPosition)) return activePositions;
-    //         newPositions.push(newPosition);
-    //     });
-    //     return newPositions
-    // }
-
     /**
      * Draw or delete tetris segments
      * @param {boolean} draw // true for draw; false for delete
@@ -92,7 +82,7 @@ $(function () {
     }
 
     /**
-     * Checks if new position of a segment is inside the play field
+     * Checks if new position of a segment is inside the play field and not filled
      * @param {array} newPosition
      * @returns {boolean}
      */
@@ -100,6 +90,20 @@ $(function () {
         let valid = true;
         if (newPosition[0] < 0 || newPosition[0] > 9) valid = false;
         if (newPosition[1] < 10 || newPosition[1] > 200) valid = false;
+        if (valid && document.getElementsByClassName(newPosition[1].toString())[newPosition[0]].innerHTML ===
+            '<div class="tetris-segment"></div>') { //if cell is taken by a segment, block
+            valid = false;
+            activePositions.forEach(function(position) { //if cell is taken by the active tetromino, allow
+                if (newPosition.includes(position[0]) && newPosition.includes(position[1])) {
+                    valid = true
+                }
+            });
+        }
         return valid
     }
+
+    function test() {
+        document.getElementsByClassName("100")[5].innerHTML = '<div class="tetris-segment"></div>'
+    }
+
 });
