@@ -5,14 +5,13 @@ $(function () {
     const TETRIS_FIELD_HEIGHT = 200; //10 for each row, starting at row 10
     const TETRIS_FIELD_WIDTH = 9; //1 for each column, starting at column 0
     let activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //cells occupied by active segments
+    //TODO tetrominos should probably spawn one row lover
 
     prepareTetrisField();
     setKeyListener();
     toggleTetrisSegments(true); //TODO remove this line later
-    test(); //TODO remove this line later
+    // test(); //TODO remove this line later
     changeTurn();
-
-
 
     /**
      * Prepare the table that serves as the play field
@@ -43,9 +42,10 @@ $(function () {
                 if (e.which === 38) newPositions = generateNewPositions(1, 10);//up TODO remove later
                 if (e.which === 37) newPositions = generateNewPositions(0, -1);//left
                 if (e.which === 39) newPositions = generateNewPositions(0, 1);//right
-                if (activePositions !== newPositions) {
-                    moveTetrisSegments(newPositions);
-                }
+                moveTetrisSegments(newPositions);
+                // if (activePositions !== newPositions) {
+                //     moveTetrisSegments(newPositions);
+                // }
             }
         })
     }
@@ -63,7 +63,7 @@ $(function () {
             newPosition[colOrRow] += magnitude;
             if (!validateNewPosition(newPosition)) {
                 newPositions = activePositions.slice();
-                break //TODO might need to return some kind of signal here
+                break
             }
             newPositions.push(newPosition);
         }
@@ -90,6 +90,14 @@ $(function () {
      * @param {array} newPositions
      */
     function moveTetrisSegments(newPositions) {
+        let sameCounter = 0;
+        for (let positionNo = 0; positionNo < 4; positionNo++) {
+            if (newPositions[positionNo][0] === activePositions[positionNo][0] &&
+                newPositions[positionNo][1] === activePositions[positionNo][1]) {
+                sameCounter++;
+                if (sameCounter === 4) return true //break if segments cannot move
+            }
+        }
         toggleTetrisSegments(false); //delete old segments
         activePositions = newPositions.slice();
         toggleTetrisSegments(true); //draw new segments
@@ -122,10 +130,17 @@ $(function () {
     function changeTurn() { //TODO timeout should probably become a global variable
         setTimeout(function () {
             console.log("turn");
-            moveTetrisSegments(generateNewPositions(1, -10)); //simulate "gravity"
+            if (moveTetrisSegments(generateNewPositions(1, -10))) { //simulate "gravity"
+                console.log ("oops");
+                //TODO add to separate array for full line checking
+                activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //TODO change to random tetromino
+                //TODO make new tetromino move one turn faster
+            }
             changeTurn()
         }, 1000)
     }
+
+    // function
 
     function test() { //TODO remove this later
         document.getElementsByClassName("100")[5].innerHTML = '<div class="tetris-segment"></div>'
