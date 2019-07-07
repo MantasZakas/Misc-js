@@ -11,4 +11,5 @@
 .tetris-segment {
   height: 100%;
   width: 100%;
-  background-color: darkslategrey; }
+  background-color: darkslategrey;
+  transition: 500ms; }
