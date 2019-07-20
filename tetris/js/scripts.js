@@ -4,11 +4,12 @@ $(function () {
 
     const TETRIS_FIELD_HEIGHT = 200; //10 for each row, starting at row 10
     const TETRIS_FIELD_WIDTH = 9; //1 for each column, starting at column 0
+    let fieldArray = []; //this will keep the data about filled cells
     let activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //cells occupied by active segments
     let doomCounter = 2; //if this reaches 0, the game is over
-    //TODO tetrominos should probably spawn one row lover
 
     prepareTetrisField();
+    prepareFieldArray();
     setKeyListener();
     toggleTetrisSegments(true); //TODO remove this line later
     // test(); //TODO remove this line later
@@ -27,6 +28,19 @@ $(function () {
             }
             fieldRow += '</tr>';
             tetrisField.append(fieldRow);
+        }
+    }
+
+    /**
+     * Prepare the field array object
+     */
+    function prepareFieldArray() {
+        for (let i = 0; i <= (TETRIS_FIELD_HEIGHT / 10) + 3; i++ ) {
+            let rowArray = [];
+            for (let j = 0; j < TETRIS_FIELD_WIDTH; j++) {
+                rowArray.push(0);
+            }
+            fieldArray.push(rowArray);
         }
     }
 
@@ -53,14 +67,7 @@ $(function () {
                         newPositions = generateNewPositions(0, 1);//right
                         break;
                 }
-                // if (e.which === 40) newPositions = generateNewPositions(1, -10);//down
-                // if (e.which === 38) newPositions = generateNewPositions(1, 10);//up TODO remove later
-                // if (e.which === 37) newPositions = generateNewPositions(0, -1);//left
-                // if (e.which === 39) newPositions = generateNewPositions(0, 1);//right
                 moveTetrisSegments(newPositions);
-                // if (activePositions !== newPositions) {
-                //     moveTetrisSegments(newPositions);
-                // }
             }
         })
     }
@@ -148,12 +155,56 @@ $(function () {
     function moveAndSpawnTetrisSegments(colOrRow, magnitude) {
         if (moveTetrisSegments(generateNewPositions(colOrRow, magnitude))) { //simulate "gravity"
             console.log ("oops"); //this code is done if a new piece needs to spawn
-            //TODO add to separate array for full line checking
+            clearFilledLines();
             activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //TODO change to random tetromino
             doomCounter--;
-            if (doomCounter === 0) return; //break loop if there is no space to spawn new pieces TODO make this better
+            if (doomCounter === 0) return; //break loop if there is no space to spawn new pieces
             moveAndSpawnTetrisSegments(colOrRow, magnitude); //not wait for a new turn to spawn a new tetromino
         }
+    }
+
+    /**
+     * Clears filled lines
+     */
+    function clearFilledLines() { //TODO might need to do the checking in a separate 2d array
+        let tetrisField = document.getElementById("tetris_field").firstElementChild;
+        for (let i = 0; i <= (TETRIS_FIELD_HEIGHT / 10) + 3; i++) { //+3 is for hidden spawn cells
+            let takenCellCounter = 0;
+            let tetrisRow = tetrisField.children[i];
+            for (let j = 0; j <= TETRIS_FIELD_WIDTH; j++) {
+                let tetrisCell = tetrisRow.children[j];
+                if (tetrisCell.innerHTML === '<div class="tetris-segment"></div>') {
+                    takenCellCounter++;
+                }
+            }
+            if (takenCellCounter === 10) {
+                for (let j = 0; j <= TETRIS_FIELD_WIDTH; j++) {
+                    tetrisRow.children[j].innerHTML = '';
+                    //TODO add score keeping global variable here
+                }
+                // i = 0;
+                // tetrisRow.remove(); //TODO implement field array and use it
+
+            }
+            takenCellCounter = 0;
+        }
+        // for (let tetrisRowNo in tetrisField) {
+        //     let takenCellCounter = 0;
+        //     for (let tetrisCellNo in tetrisField[tetrisRowNo]) {
+        //         if (tetrisField[tetrisRowNo].innerHTML === '<div class="tetris-segment"></div>') {
+        //             takenCellCounter++;
+        //         }
+        //     }
+        //     // console.log(takenCellCounter);
+        //     if (takenCellCounter === TETRIS_FIELD_WIDTH + 1) {
+        //         for (let tetrisCell in tetrisRow)
+        //             tetrisCell.innerHTML = '';
+        //     }
+        // }
+    }
+
+    function copyFieldToArray() {
+        //TODO fill this in
     }
 
     /**
@@ -163,12 +214,9 @@ $(function () {
         setTimeout(function () {
             console.log("turn");
             moveAndSpawnTetrisSegments(1, -10);
-            // if (moveTetrisSegments(generateNewPositions(1, -10))) { //simulate "gravity"
-            //     console.log ("oops");
-            //     activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]];
-            // }
             if (doomCounter > 0) {
                 doomCounter = 2; //reset the doom counter if there was space to spawn a new piece
+                consoleLogFieldArray();//TODO delete this
                 changeTurn();
             } else {
                 console.log("Game over"); //TODO add a game over screen
@@ -180,4 +228,9 @@ $(function () {
         document.getElementsByClassName("100")[5].innerHTML = '<div class="tetris-segment"></div>'
     }
 
+    function consoleLogFieldArray() { //TODO delete this later
+        for (let i = 0; i < fieldArray.length; i++) {
+            console.log(fieldArray[i].toString());
+        }
+    }
 });
