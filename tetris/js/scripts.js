@@ -5,6 +5,7 @@ $(function () {
     const TETRIS_FIELD_HEIGHT = 200; //10 for each row, starting at row 10
     const TETRIS_FIELD_WIDTH = 9; //1 for each column, starting at column 0
     let activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //cells occupied by active segments
+    let doomCounter = 2; //if this reaches 0, the game is over
     //TODO tetrominos should probably spawn one row lover
 
     prepareTetrisField();
@@ -146,9 +147,11 @@ $(function () {
      */
     function moveAndSpawnTetrisSegments(colOrRow, magnitude) {
         if (moveTetrisSegments(generateNewPositions(colOrRow, magnitude))) { //simulate "gravity"
-            console.log ("oops");
+            console.log ("oops"); //this code is done if a new piece needs to spawn
             //TODO add to separate array for full line checking
             activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //TODO change to random tetromino
+            doomCounter--;
+            if (doomCounter === 0) return; //break loop if there is no space to spawn new pieces TODO make this better
             moveAndSpawnTetrisSegments(colOrRow, magnitude); //not wait for a new turn to spawn a new tetromino
         }
     }
@@ -164,7 +167,12 @@ $(function () {
             //     console.log ("oops");
             //     activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]];
             // }
-            changeTurn()
+            if (doomCounter > 0) {
+                doomCounter = 2; //reset the doom counter if there was space to spawn a new piece
+                changeTurn();
+            } else {
+                console.log("Game over"); //TODO add a game over screen
+            }
         }, 1000)
     }
 
