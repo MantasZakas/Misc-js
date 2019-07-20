@@ -38,10 +38,24 @@ $(function () {
             let recognisedKeys = [40, 38, 37, 39]; //TODO might need to change this to a key mapping object
             if (recognisedKeys.includes(e.which)) { //ignore not understood key presses
                 let newPositions = [];
-                if (e.which === 40) newPositions = generateNewPositions(1, -10);//down
-                if (e.which === 38) newPositions = generateNewPositions(1, 10);//up TODO remove later
-                if (e.which === 37) newPositions = generateNewPositions(0, -1);//left
-                if (e.which === 39) newPositions = generateNewPositions(0, 1);//right
+                switch (e.which) {
+                    case 40:
+                        newPositions = generateNewPositions(1, -10);//down
+                        break;
+                    case 38:
+                        newPositions = generateNewPositions(1, 10);//up TODO remove later
+                        break;
+                    case 37:
+                        newPositions = generateNewPositions(0, -1);//left
+                        break;
+                    case 39:
+                        newPositions = generateNewPositions(0, 1);//right
+                        break;
+                }
+                // if (e.which === 40) newPositions = generateNewPositions(1, -10);//down
+                // if (e.which === 38) newPositions = generateNewPositions(1, 10);//up TODO remove later
+                // if (e.which === 37) newPositions = generateNewPositions(0, -1);//left
+                // if (e.which === 39) newPositions = generateNewPositions(0, 1);//right
                 moveTetrisSegments(newPositions);
                 // if (activePositions !== newPositions) {
                 //     moveTetrisSegments(newPositions);
@@ -86,8 +100,9 @@ $(function () {
     }
 
     /**
-     *
+     * Move segments to a new position
      * @param {array} newPositions
+     * @returns {boolean} // true if the new position is the same as the old one
      */
     function moveTetrisSegments(newPositions) {
         let sameCounter = 0;
@@ -125,22 +140,33 @@ $(function () {
     }
 
     /**
+     * Self calling version of moveTetrisSegments to allow spawning of new segments
+     * @param {number} colOrRow // 0 for col; 1 for row
+     * @param {number} magnitude // +-1 or +-10
+     */
+    function moveAndSpawnTetrisSegments(colOrRow, magnitude) {
+        if (moveTetrisSegments(generateNewPositions(colOrRow, magnitude))) { //simulate "gravity"
+            console.log ("oops");
+            //TODO add to separate array for full line checking
+            activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //TODO change to random tetromino
+            moveAndSpawnTetrisSegments(colOrRow, magnitude); //not wait for a new turn to spawn a new tetromino
+        }
+    }
+
+    /**
      * Self calling loop that takes care of what happens each turn
      */
     function changeTurn() { //TODO timeout should probably become a global variable
         setTimeout(function () {
             console.log("turn");
-            if (moveTetrisSegments(generateNewPositions(1, -10))) { //simulate "gravity"
-                console.log ("oops");
-                //TODO add to separate array for full line checking
-                activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]]; //TODO change to random tetromino
-                //TODO make new tetromino move one turn faster
-            }
+            moveAndSpawnTetrisSegments(1, -10);
+            // if (moveTetrisSegments(generateNewPositions(1, -10))) { //simulate "gravity"
+            //     console.log ("oops");
+            //     activePositions = [[4, 210], [5, 210], [4, 220], [5, 220]];
+            // }
             changeTurn()
         }, 1000)
     }
-
-    // function
 
     function test() { //TODO remove this later
         document.getElementsByClassName("100")[5].innerHTML = '<div class="tetris-segment"></div>'
