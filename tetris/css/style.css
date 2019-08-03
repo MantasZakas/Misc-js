@@ -1,19 +1,12 @@
 #main_div {
-  height: 100vh; }
+    height: 100vh;
+}
 
 #tetris_field {
-  box-sizing: border-box; }
-  #tetris_field td {
-    height: 25px;
-    width: 25px;
-    border: 1px solid black; }
+    line-height: 20px;
+    letter-spacing: 10px;
+}
 
-.tetris-segment {
-  height: 100%;
-  width: 100%;
-  background-color: darkslategrey;
-  transition: 1000ms; }
-
-.d-none {
-  display: table-row !important;
-  background-color: grey; }
+#tetris_field > i {
+    color: lightgray;
+}
